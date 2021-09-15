@@ -1,0 +1,137 @@
+# Actual arrival runway
+runways_data_set@DB:
+  type: data_services.kedro_extensions.io.SQLQueryFileChunkedDataSetMultiCon
+  credentials: ${globals.runway_db_credentials}
+  sqlfilepath: src/dep_rwy/pipelines/data_query_and_save/SQL/actual_runways.sql
+  airport: ${globals.airport_icao}
+  load_args:
+    chunk_size_days: 30
+    params:
+      start_time: ${globals.start_time}
+      end_time: ${globals.end_time}
+      airport: ${globals.airport_icao}
+      surf_surv_avail: ${globals.surface_surveillance_available}
+
+runways_data_set@CSV:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/${globals.airport_icao}_${globals.start_time}_${globals.end_time}.runways_data_set.csv
+  versioned: false
+  load_args:
+    parse_dates: [
+      departure_runway_actual_time,
+    ]
+
+
+# Airport configuration
+config_data_set@DB:
+  type: data_services.kedro_extensions.io.SQLQueryFileChunkedDataSetMultiCon
+  credentials: ${globals.config_db_credentials}
+  sqlfilepath: src/dep_rwy/pipelines/data_query_and_save/SQL/airport_configurations.sql
+  airport: ${globals.airport_icao}
+  load_args:
+    chunk_size_days: 30
+    params:
+      start_time: ${globals.start_time}
+      end_time: ${globals.end_time}
+      airport: ${globals.airport_icao}
+
+config_data_set@CSV:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/${globals.airport_icao}_${globals.start_time}_${globals.end_time}.configs_data_set.csv
+  versioned: false
+  load_args:
+    parse_dates: [
+      datis_time,
+      config_start_time,
+    ]
+
+
+# Summary data
+mfs_data_set@DB:
+  type: data_services.kedro_extensions.io.SQLQueryFileChunkedDataSetMultiCon
+  credentials: ${globals.fuser_db_credentials}
+  sqlfilepath: src/dep_rwy/pipelines/data_query_and_save/SQL/mfs_data_query.sql
+  airport: ${globals.airport_icao}
+  load_args:
+    chunk_size_days: 30
+    params:
+      start_time: ${globals.start_time}
+      end_time: ${globals.end_time}
+      airport: ${globals.airport_icao}
+
+mfs_data_set@CSV:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/${globals.airport_icao}_${globals.start_time}_${globals.end_time}.mfs_data_set.csv
+  versioned: false
+  load_args:
+    parse_dates: [
+      departure_stand_actual_time,
+      departure_runway_actual_time,
+    ]
+
+
+# Planned departure fix
+planned_fix_data_set@DB:
+  type: data_services.kedro_extensions.io.SQLQueryFileChunkedDataSetMultiCon
+  credentials: ${globals.fuser_db_credentials}
+  sqlfilepath: src/dep_rwy/pipelines/data_query_and_save/SQL/planned_departure_fix.sql
+  airport: ${globals.airport_icao} 
+  load_args:
+    chunk_size_days: 30
+    extend_first_start_time_hours: 24
+    params:
+      start_time: ${globals.start_time}
+      end_time: ${globals.end_time}
+      airport: ${globals.airport_icao}
+
+planned_fix_data_set@CSV:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/${globals.airport_icao}_${globals.start_time}_${globals.end_time}.planned_fix_data_set.csv
+  versioned: false
+  load_args:
+    parse_dates: [
+      timestamp,
+    ]
+
+
+# Lookahead time
+lookahead_data_set@DB:
+  type: data_services.kedro_extensions.io.SQLQueryFileChunkedDataSetMultiCon
+  credentials: ${globals.fuser_db_credentials}
+  sqlfilepath: src/dep_rwy/pipelines/data_query_and_save/SQL/departure_stand_best_time.sql
+  airport: ${globals.airport_icao}
+  load_args:
+    chunk_size_days: 30
+    extend_first_start_time_hours: 24
+    params:
+      start_time: ${globals.start_time}
+      end_time: ${globals.end_time}
+      airport: ${globals.airport_icao}
+
+lookahead_data_set@CSV:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/${globals.airport_icao}_${globals.start_time}_${globals.end_time}.departure_stand_best_time.csv
+  versioned: false
+  load_args:
+    parse_dates: [
+      timestamp,
+      departure_stand_best_time,
+    ]
+
+
+# DE results
+de_data_set@CSV:
+  type: pandas.CSVDataSet
+  filepath: data/05_model_input/${globals.airport_icao}.de_data_set.csv
+  versioned: false
+  load_args:
+    dtype:
+      departure_runway_actual: str
+    low_memory: false
+
+
+# Standard aircraft types XML in CSV format
+aircraft_types_xml@CSV:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/aircraft_types_xml.csv
+  versioned: false
