@@ -1,10 +1,11 @@
+![ATD2 logo](images/ATD2_logo_animation.gif)
 ## Departure Runway Prediction
 
 The ML-airport-departure-runway software is developed to provide a reference implementation to serve as a research example how to train and register Machine Learning (ML) models intended for predicting departure runway assignments. The software is designed to point to databases which are not provided as part of the software release and thus this software is only intended to serve as an example of best practices. The software is built in python and leverages open-source libraries kedro, scikitlearn, MLFlow, and others. The software provides examples how to build three distinct pipelines for data query and save, data engineering, and data science. These pipelines enable scalable, repeatable, and maintainable development of ML models.
 
 ## ML Airport Surface Model Background Information
 
-The ML-airport-departure-runway model is one of several ML models tied together by the Airport Surface Model Orchestrator shown below.
+The ML-airport-departure-runway models are one of several ML models tied together by the Airport Surface Model Orchestrator shown below.
 
 ![Airport Surface Model Orchestrator Diagram](images/orchestrator.png) 
 
@@ -16,11 +17,22 @@ The input data sources for the individual ML prediction services are shown in th
 
 The ML Airport Surface Model forms the building blocks of a cloud based predictive engine that alerts flight operators to pre-departure Trajectory Option Set (TOS) reroute opportunities within the terminal airspace. The ML Airport Surface Model was designed to be a scalable replacement for the capabilities provided by NASA's Surface Trajectory Based Operations (STBO) subsystem, which is a component of the fielded ATD2 Phase 3 System in the North Texas Metroplex. The STBO subsystem relies heavily upon detailed adaptation, which defines the physical constraints and encodes Subject Matter Expert knowledge within decision trees, and creates a costly bottleneck to scaling the pre-departure TOS digital reroute capability across the National Airspace System.
 
-### Steps to start using this project (and some helpful information about Kedro + MLflow projects)
+
+Departure Runway Prediction is part of a suite of softwares designed to model the airport surface :
+- [ML-airport Airport Configuration Model](https://github.com/nasa/ML-airport-configuration)
+- [ML-airport Arrival Runway Model](https://github.com/nasa/ML-airport-arrival-runway)
+- [ML-airport Departure Runway Model](https://github.com/nasa/ML-airport-departure-runway)
+- [ML-airport Taxi-In Model](https://github.com/nasa/ML-airport-taxi-in)
+- [ML-airport Taxi-Out Model](https://github.com/nasa/ML-airport-taxi-out)
+- [ML-airport Estimated-On-Time Model](https://github.com/nasa/ML-airport-estimated-ON)
+- [ML-airport Data Services](https://github.com/nasa/ML-airport-data-services)
+
+
+## Steps to start using this project (and some helpful information about Kedro + MLflow projects)
 
 In addition to the steps below, take a look at the [Kedro documentation](https://kedro.readthedocs.io) and the [MLflow documentation](https://mlflow.org/docs/latest/index.html) for more help getting started.
 
-### Set up the project conda environment
+## Set up the project conda environment
 
 Create new environment from `conda.yml` file
 ```
@@ -31,7 +43,7 @@ Then activate the environment.
 conda activate dep-rwy
 ```
 
-### Configure Kedro
+## Configure Kedro
 
 *Credentials*
 credentials.yml defines username, host, port to access a database which we assume has FUSER data.
@@ -85,7 +97,7 @@ These are defined by combining partial pipelines defined in other places through
 For example, some data engineering pipelines are defined in `src/dep_rwy/pipelines/data_engineering/pipeline.py`.
 Nodes are simply wrappers around functions, which in turn can be defined or imported from anywhere, but are often and conventionally defined in various `nodes.py` files in various directories throughout the project.
 
-### Configure MLflow
+## Configure MLflow
 
 *MLflow server*
 
@@ -96,7 +108,7 @@ MLflow can be configured to track runs locally or remotely on a server.
 Throughout the code are some [MLflow API](https://www.mlflow.org/docs/latest/python_api/index.html) calls.
 These do things like log run parameters and metrics to the MLflow server or log run artifacts (e.g., pickled trained models) to the MLflow artifact store.
 
-## Getting data
+## Getting data with Data Query and Save (DQS) Pipeline
 
 Most of the data required to run train models in this project can be acquired by running "data query and save" (DQS) pipelines.
 These run some queries per data set declarations in `conf/base/catalog.yml` (with some aspects of these declarations imported from the specified `conf/base/*globals.yml`), accessing databases per credentials in `conf/local/credentials.yml`, and save resulting CSVs locally in the `data/` folder (typically in the `01_raw/` subfolder).
