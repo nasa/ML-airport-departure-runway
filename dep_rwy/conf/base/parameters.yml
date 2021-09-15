@@ -1,0 +1,150 @@
+# Copy of globals to facilitate access
+globals: ${globals}
+
+mlflow:
+    tracking_uri: XXXXX
+    experiment_name: dep_rwy
+    run_name: new_wrapper
+    modeler_name: achurchill
+
+random_seed: 1234
+
+# Fraction of whole dataset to reserve for testing
+test_size: 0.10
+
+# Fraction of training dataset to use for training
+#   Implemented because full training dataset is too large
+tv_timestep_fraction_train: 0.10
+
+# Time step length for creating intermediate rows in TV dataset
+tv_timestep: 60s
+
+# Controls for logging inside the pipeline
+pipeline_inspect_data_verbosity: 0
+data_inspector_verbosity: 0
+
+df_join_kwargs:
+    mfs_data_set:
+        runways_data_set:
+            how: left
+            'on': gufi
+            suffixes:
+                - _mfs
+                - _via_surveillance
+    ntv_df:
+        config_data_set:
+            left_on: departure_runway_actual_time
+            right_on: config_start_time
+            allow_exact_matches: True
+            direction: backward
+    tv_df:
+        ntv_df:
+            how: left
+            'on': gufi
+
+runway_cols_to_clean:
+    - departure_runway_actual
+
+difference_columns:
+    lookahead:
+        - departure_stand_best_time
+        - timestamp
+    airport_configuration_lifetime:
+        - timestamp
+        - config_start_time
+
+target:
+    name: departure_runway_actual
+    type: str
+    constraints:
+        include_learned: true
+
+inputs:
+    lookahead:
+        core: true
+        type: float
+        constraints:
+            min: 0
+            max: 14400
+    departure_fix_source_data:
+        core: true
+        type: str
+        encoder: OneHotEncoder
+        encoder_params:
+            handle_unknown: error
+        constraints:
+            include_learned: true
+    filed_flight:
+        core: false
+        type: bool
+        imputer: SimpleImputer
+        imputer_params:
+            strategy: constant
+            fill_value: false  #TODO: add a filing status unknown column?
+    airport_configuration_name:
+        core: true
+        type: str
+        encoder: AirportConfigEncoder  #This will drop the input field
+    aircraft_engine_class:
+        core: false
+        type: str
+        imputer: SimpleImputer
+        imputer_params:
+            strategy: most_frequent
+        encoder: OneHotEncoder
+        encoder_params:
+            handle_unknown: ignore
+        constraints:
+            include_learned: true
+            allowable_vals:
+                - JET
+                - TURBO
+                - PISTON
+    wake_turbulence_category:
+        core: false
+        type: str
+        imputer: SimpleImputer
+        imputer_params:
+            strategy: most_frequent
+        encoder: OneHotEncoder
+        encoder_params:
+            handle_unknown: ignore
+        constraints:
+            include_learned: true
+            allowable_vals:
+                - A
+                - B
+                - C
+                - D
+                - E
+                - F
+
+models:
+    # DummyClassifier:
+    #     baseline: false
+    #     model_params:
+    #         strategy: uniform
+    #         random_state: 42
+    # LogisticRegression:
+    #     baseline: false
+    #     model_params:
+    #         max_iter: 10000
+    #         multi_class: multinomial
+    XGBClassifier:
+        baseline: false
+        model_params:
+            random_state: 42
+            objective: 'multi:softmax'
+        # CV_params:
+        #     n_jobs: 3
+        #     cv: 4
+        #     refit: True
+        #     verbose: 5
+        #     scoring: accuracy
+        # model_params:
+        #     regressor__n_jobs: [1]
+        #     regressor__random_state: [42]
+        #     regressor__objective: ['multi:softmax']
+        #     regressor__learning_rate: [0.1, 0.3, 0.5, 0.7, 0.9]
+        #     regressor__max_depth: [4, 6, 8]
+        #     regressor__min_child_weight: [0.5, 1, 3, 10]
