@@ -202,7 +202,7 @@ kedro viz --pipeline ds
 
 ## Copyright and Notices
 
-The ML-airport-taxi-out code is released under the [NASA Open Source Agreement Version 1.3 license](license.pdf)
+The ML-airport-departure-runway code is released under the [NASA Open Source Agreement Version 1.3 license](license.pdf)
 
 
 ## Notices
