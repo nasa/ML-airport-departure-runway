@@ -128,6 +128,19 @@ def create_pipelines(**kwargs):
                 name="score_models",
                 ),
 
+           node(
+               func=copy_artifacts_to_ntx,
+               inputs=[
+                   "experiment_id",
+                   "model_pipelines",
+                   "params:ntx_connection",
+                   "artifacts_ready",
+                   "params:ntx_credentials.key_path",
+                   ],
+               outputs=None,
+               name="copy_artifacts_to_ntx",
+               ),
+
             ],
         tags="ds",
         )

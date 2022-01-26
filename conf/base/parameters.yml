@@ -3,9 +3,14 @@ globals: ${globals}
 
 mlflow:
     tracking_uri: XXXXX
-    experiment_name: dep_rwy
-    run_name: new_wrapper
-    modeler_name: achurchill
+    experiment_name: ML-airport-departure-runway
+    run_name: XXXXX
+    modeler_name: XXXXX
+
+ntx_connection:
+    host: XXXXX
+    port: XXXXX
+    username: XXXXX
 
 random_seed: 1234
 

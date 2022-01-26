@@ -37,6 +37,7 @@ from dep_rwy.pipelines import data_query_and_save as dqs
 from dep_rwy.pipelines import data_engineering as de
 from dep_rwy.pipelines import data_science as ds
 
+from data_services.conda_environment_test import check_environment
 
 def create_pipelines(**kwargs) -> Dict[str, Pipeline]:
     """Create the project"s pipeline.
@@ -48,6 +49,8 @@ def create_pipelines(**kwargs) -> Dict[str, Pipeline]:
         A mapping from a pipeline name to a ``Pipeline`` object.
 
     """
+
+    check_environment("conda.yml")
 
     dqs_pipeline = dqs.create_pipelines()
     de_pipelines = de.create_pipelines()
